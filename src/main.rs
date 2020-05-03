@@ -1,27 +1,26 @@
 extern crate gstreamer as gst;
 use gst::prelude::*;
 
+use std::env;
 use std::process;
 use std::thread;
 
-fn source(port: i32, user_id: u32) {
+fn gst_init() {
     if let Err(e) = gst::init() {
         eprintln!("{}", e);
         process::exit(1);
     }
-    let (major, minor, micro, nano) = gst::version();
-    let mut nano_str = "";
-    if nano == 1 {
-        nano_str = "(CVS)";
-    } else if nano == 2 {
-        nano_str = "(Prerelease)";
-    }
-    println!(
-        "This program is linked against GStreamer {}.{}.{} {}",
-        major, minor, micro, nano_str
-    );
+}
+
+fn source(port: i32, user_id: u32) {
+    gst_init();
     let pipeline = gst::Pipeline::new(Some(&format!("user-{}", user_id)));
     let source = gst::ElementFactory::make("udpsrc", None).unwrap();
+    if let Ok(ip) = env::var("VOIP-IP") {
+        source
+            .set_property("address", &ip)
+            .expect("Unable to set source address.");
+    }
     source
         .set_property("port", &port)
         .expect("Unable to set source port.");
