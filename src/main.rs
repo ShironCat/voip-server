@@ -16,7 +16,7 @@ fn source(port: i32, user_id: u32) {
     gst_init();
     let pipeline = gst::Pipeline::new(Some(&format!("user-{}", user_id)));
     let source = gst::ElementFactory::make("udpsrc", None).unwrap();
-    if let Ok(ip) = env::var("VOIP-IP") {
+    if let Ok(ip) = env::var("VOIP_IP") {
         source
             .set_property("address", &ip)
             .expect("Unable to set source address.");
